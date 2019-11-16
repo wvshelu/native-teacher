@@ -36,6 +36,7 @@ app.post('/webhook', (req, res) => {
         // Check if the event is a message or postback and
         // pass the event to the appropriate handler function
         if (webhook_event.message) {
+          if (containsUser())
           handleMessage(sender_psid, webhook_event.message);
         } else if (webhook_event.postback) {
           handlePostback(sender_psid, webhook_event.postback);
@@ -85,7 +86,14 @@ function handleMessage(sender_psid, received_message) {
   if (received_message.text) {
     // Create the payload for a basic text message, which
     // will be added to the body of our request to the Send API
-    greetUser(sender_psid);
+    if (!containsUser(sender_psid))
+      greetUser(sender_psid);
+    else if (!containsLanguage(sender_psid))
+      greetUser(sender_psid); // Change
+    else if (!containsLanguagePair(sender_psid))
+      greetUser(sender_psid); // Change
+    // final
+
   } else if (received_message.attachments) {
     // Get the URL of the message attachment
     let attachment_url = received_message.attachments[0].payload.url;
@@ -134,17 +142,21 @@ function greetUser(sender_psid) {
     } else {
       var bodyObj = JSON.parse(body);
       const name = bodyObj.first_name;
-      greeting = "Hi " + name + ". ";
-      const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
-      client.connect(err => {
-        if (!err) {
-          const collection = client.db("native_teacher").collection("users");
-          collection.insert({"psid" : sender_psid, "name" : name, "language" : "english"});
-        } else {
-          console.log(err);
-        }
-        client.close();
-      });
+      if (name) {
+        greeting = "Hi " + name + ". ";
+        const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+        client.connect(err => {
+          if (!err) {
+            const collection = client.db("native_teacher").collection("users");
+            collection.findOneAndUpdate({"psid" : sender_psid},
+              {"psid" : sender_psid, "name" : name, "language" : "english"},
+              {upsert : true});
+          } else {
+            console.log(err);
+          }
+          client.close();
+        });
+      }
     }
     const message = greeting + "Would you like to join a community of like-minded pandas in your area?";
     const greetingPayload = {
@@ -192,4 +204,20 @@ function handlePostback(sender_psid, received_postback) {
   }
   // Send the message to acknowledge the postback
   callSendAPI(sender_psid, response);
+}
+
+function containsUser(sender_psid) {
+  return false;
+}
+
+function containsLanguage(sender_psid) {
+  return false;
+}
+
+function containsLanguagePair(sender_psid) {
+  return false;
+}
+
+function containsMatch(sender_psid) {
+  return false;
 }
