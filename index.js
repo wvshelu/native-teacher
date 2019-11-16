@@ -14,17 +14,17 @@ const AUSTRALIA_NO = 'AUSTRALIA_NO';
 const OTHER_HELP_YES = 'OTHER_HELP_YES';
 const FACEBOOK_GRAPH_API_BASE_URL = 'https://graph.facebook.com/v2.6/';
 const GOOGLE_GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
-const MONGODB_URI = process.env.MONGODB_URI;
+// const MONGODB_URI = process.env.MONGODB_URI;
 const GOOGLE_GEOCODING_API_KEY = process.env.GOOGLE_GEOCODING_API_KEY;
 
 const
   request = require('request'),
   express = require('express'),
   body_parser = require('body-parser'),
-  mongoose = require('mongoose'),
+  // mongoose = require('mongoose'),
   app = express().use(body_parser.json()); // creates express http server
 
- var db = mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
+ // var db = mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
  var ChatStatus = require("./models/chatstatus");
 
 // Sets server port and logs message on success
