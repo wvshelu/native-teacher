@@ -88,13 +88,13 @@ function handleMessage(sender_psid, received_message) {
     var user = getUser(sender_psid);
     if (user == null)
       greetUser(sender_psid);
-    else {
+    /*else {
       if (user.language == null) {
         registerLanguage(user, received_message.text);
       } else {
         findMatchOrRegister();
       }
-    }
+    }*/
 
   } else {
     callSendAPI(user.psid, {
@@ -141,7 +141,7 @@ function greetUser(sender_psid) {
     callSendAPI(sender_psid, greetingPayload);
   });
 }
-
+/*
 function registerLanguage(user, language) {
   const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
   client.connect(err => {
@@ -207,7 +207,7 @@ function findMatchOrRegister(user, desired_language) {
 function match(psid, matched_psid) {
 
 }
-
+*/
 function callSendAPI(sender_psid, response) {
   // Construct the message body
   let request_body = {
@@ -264,6 +264,7 @@ function getUser(sender_psid) {
   return user;
 }
 
+/*
 function getLanguagePair(sender_psid) {
   var pair = null;
   const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
@@ -278,4 +279,4 @@ function getLanguagePair(sender_psid) {
     client.close();
   });
   return pair == null? null : pair.desired_language;
-}
+}*/
