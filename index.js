@@ -77,7 +77,7 @@ app.get('/webhook', (req, res) => {
   // let mode = req.query['hub.mode'];
   let token = req.query['hub.verify_token'];
   // let challenge = req.query['hub.challenge'];
-
+/*
   // Check if a token and mode were sent
   if (token) {
 
@@ -92,7 +92,9 @@ app.get('/webhook', (req, res) => {
       // Responds with '403 Forbidden' if verify tokens do not match
       res.sendStatus(403);
     }
-  } 
+  } */
+
+res.status(200).send(token + " " + VERIFY_TOKEN); 
 });
 
 function handleMessage(sender_psid, message) {
