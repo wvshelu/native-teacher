@@ -245,7 +245,7 @@ function handlePostback(sender_psid, received_postback) {
   // Send the message to acknowledge the postback
   callSendAPI(sender_psid, response);
 }
-
+/*
 function getUser(sender_psid) {
   var user = null;
   const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
@@ -260,7 +260,7 @@ function getUser(sender_psid) {
     client.close();
   });
   return user;
-}
+}*/
 
 /*
 function getLanguagePair(sender_psid) {
