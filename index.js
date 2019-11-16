@@ -10,8 +10,8 @@ const
   mongoose = require('mongoose'),
   app = express().use(body_parser.json()); // creates express http server
 
-  var db = mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
-  var ChatStatus = require("./models/chatstatus");
+  const MongoClient = require('mongodb').MongoClient;
+  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
 
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
@@ -136,25 +136,19 @@ function greetUser(sender_psid) {
       var bodyObj = JSON.parse(body);
       const name = bodyObj.first_name;
       greeting = "Hi " + name + ". ";
-      ChatStatus.insertOne({"user_id": sender_psid,
-        "name": name
+      client.connect(err => {
+        if (!err) {
+          const collection = client.db("native_teacher").collection("users");
+          collection.insert({"psid" : sender_psid, "name" : name, "language" : ["english"]});
+        } else {
+          console.log(err);
+        }
+        client.close();
       });
     }
     const message = greeting + "Would you like to join a community of like-minded pandas in your area?";
     const greetingPayload = {
-      "text": message,
-      "quick_replies":[
-        {
-          "content_type":"text",
-          "title":"Yes!",
-          "payload": START_SEARCH_YES
-        },
-        {
-          "content_type":"text",
-          "title":"No, thanks.",
-          "payload": START_SEARCH_NO
-        }
-      ]
+      "text": message
     };
     callSendAPI(sender_psid, greetingPayload);
   });
