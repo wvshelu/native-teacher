@@ -36,7 +36,6 @@ app.post('/webhook', (req, res) => {
         // Check if the event is a message or postback and
         // pass the event to the appropriate handler function
         if (webhook_event.message) {
-          if (containsUser())
           handleMessage(sender_psid, webhook_event.message);
         } else if (webhook_event.postback) {
           handlePostback(sender_psid, webhook_event.postback);
@@ -86,44 +85,21 @@ function handleMessage(sender_psid, received_message) {
   if (received_message.text) {
     // Create the payload for a basic text message, which
     // will be added to the body of our request to the Send API
-    if (!containsUser(sender_psid))
+    var user = getUser(sender_psid);
+    if (user == null)
       greetUser(sender_psid);
-    else if (!containsLanguage(sender_psid))
-      greetUser(sender_psid); // Change
-    else if (!containsLanguagePair(sender_psid))
-      greetUser(sender_psid); // Change
-    // final
-
-  } else if (received_message.attachments) {
-    // Get the URL of the message attachment
-    let attachment_url = received_message.attachments[0].payload.url;
-    response = {
-      "attachment": {
-        "type": "template",
-        "payload": {
-          "template_type": "generic",
-          "elements": [{
-            "title": "Is this the right picture?",
-            "subtitle": "Tap a button to answer.",
-            "image_url": attachment_url,
-            "buttons": [
-              {
-                "type": "postback",
-                "title": "Yes!",
-                "payload": "yes",
-              },
-              {
-                "type": "postback",
-                "title": "No!",
-                "payload": "no",
-              }
-            ],
-          }]
-        }
+    else {
+      if (user.language == null) {
+        registerLanguage(user, received_message.text);
+      } else {
+        findMatchOrRegister();
       }
     }
-    // Send the response message
-    callSendAPI(sender_psid, response);
+
+  } else {
+    callSendAPI(user.psid, {
+      "text": "Sorry, I don't understand."
+    });
   }
 }
 
@@ -149,7 +125,7 @@ function greetUser(sender_psid) {
           if (!err) {
             const collection = client.db("native_teacher").collection("users");
             collection.findOneAndUpdate({"psid" : sender_psid},
-              {"psid" : sender_psid, "name" : name, "language" : "english"},
+              {"psid" : sender_psid, "name" : name},
               {upsert : true});
           } else {
             console.log(err);
@@ -158,12 +134,78 @@ function greetUser(sender_psid) {
         });
       }
     }
-    const message = greeting + "Would you like to join a community of like-minded pandas in your area?";
+    const message = greeting + "I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
     const greetingPayload = {
       "text": message
     };
     callSendAPI(sender_psid, greetingPayload);
   });
+}
+
+function registerLanguage(user, language) {
+  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+  client.connect(err => {
+    if (!err) {
+      const collection = client.db("native_teacher").collection("users");
+      collection.findOneAndUpdate({"psid" : user.psid},
+        {"psid" : user.psid, "name" : user.name, "language" : language},
+        {upsert : true});
+    } else {
+      console.log(err);
+    }
+    client.close();
+  });
+  const greetingPayload = {
+    "text": "What language would you like to learn?"
+  };
+  callSendAPI(user.psid, greetingPayload);
+}
+
+function findMatchOrRegister(user, desired_language) {
+  var matched = false;
+  if (user && desired_language) {
+    const client_one = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+    client_one.connect(err => {
+      if (!err) {
+        const collection = client_one.db("native_teacher").collection("users");
+        var users = collection.find({"language" : desired_language});
+        while (users.hasNext()) {
+          var matched_psid = users.next().psid;
+          if (getLanguagePair(matched_psid) == user.language)) {
+            match(user.psid, matched_psid);
+            callSendAPI(user.psid, {
+              "text": "Great, we found you a match!"
+            });
+            matched = true;
+          }
+        }
+      } else {
+        console.log(err);
+      }
+      client_one.close();
+    });
+  }
+  if (!matched) {
+    const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+    client.connect(err => {
+      if (!err) {
+        const collection = client.db("native_teacher").collection("language_pair");
+        collection.findOneAndUpdate({"psid" : sender_psid},
+          {"psid" : sender_psid, "desired_language" : desired_language},
+          {upsert : true});
+      } else {
+        console.log(err);
+      }
+      client.close();
+    });
+    callSendAPI(user.psid, {
+      "text": "We will send you a message when we have your match!"
+    });
+  }
+}
+
+function match(psid, matched_psid) {
+
 }
 
 function callSendAPI(sender_psid, response) {
@@ -206,18 +248,34 @@ function handlePostback(sender_psid, received_postback) {
   callSendAPI(sender_psid, response);
 }
 
-function containsUser(sender_psid) {
-  return false;
+function getUser(sender_psid) {
+  var user = null;
+  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+  client.connect(err => {
+    if (!err) {
+      const collection = client.db("native_teacher").collection("users");
+      var users = collection.find({"psid" : sender_psid});
+      user = users.hasNext()? users.next() : null;
+    } else {
+      console.log(err);
+    }
+    client.close();
+  });
+  return user;
 }
 
-function containsLanguage(sender_psid) {
-  return false;
-}
-
-function containsLanguagePair(sender_psid) {
-  return false;
-}
-
-function containsMatch(sender_psid) {
-  return false;
+function getLanguagePair(sender_psid) {
+  var pair = null;
+  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+  client.connect(err => {
+    if (!err) {
+      const collection = client.db("native_teacher").collection("language_pair");
+      var pairs = collection.find({"psid" : sender_psid});
+      pair = pairs.hasNext()? pairs.next() : null;
+    } else {
+      console.log(err);
+    }
+    client.close();
+  });
+  return pair == null? null : pair.desired_language;
 }
