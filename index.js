@@ -1,6 +1,6 @@
 'use strict';
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-const START_SEARCH_NO = 'START_SEARCH_NO';
+/*const START_SEARCH_NO = 'START_SEARCH_NO';
 const START_SEARCH_YES = 'START_SEARCH_YES';
 const GREETING = 'GREETING';
 const AUSTRALIA_YES = 'AUSTRALIA_YES';
@@ -16,7 +16,7 @@ const FACEBOOK_GRAPH_API_BASE_URL = 'https://graph.facebook.com/v2.6/';
 const GOOGLE_GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
 // const MONGODB_URI = process.env.MONGODB_URI;
 const GOOGLE_GEOCODING_API_KEY = process.env.GOOGLE_GEOCODING_API_KEY;
-
+*/
 const
   request = require('request'),
   express = require('express'),
@@ -25,11 +25,11 @@ const
   app = express().use(body_parser.json()); // creates express http server
 
  // var db = mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
- var ChatStatus = require("./models/chatstatus");
+ // var ChatStatus = require("./models/chatstatus");
 
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
-
+/*
 // Accepts POST requests at /webhook endpoint
 app.post('/webhook', (req, res) => {
 
@@ -65,7 +65,7 @@ app.post('/webhook', (req, res) => {
         });
       });
     }
-});
+}); */
 
 // Accepts GET requests at the /webhook endpoint
 app.get('/webhook', (req, res) => {
@@ -96,7 +96,7 @@ console.log(challenge);
     }
   }
 });
-
+/*
 function handleMessage(sender_psid, message) {
   // check if it is a location message
   console.log('handleMEssage message:', JSON.stringify(message));
@@ -512,3 +512,4 @@ function callGeocodingApi(address, sender_psid, callback){
     }
   });
 }
+*/
