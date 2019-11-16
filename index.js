@@ -159,7 +159,7 @@ function greetUser(sender_psid) {
       }
       const message =
         greeting +
-        "Would you like to join a community of like-minded pandas in your area?";
+        "Welcome to Native Teacher a bot to help connect you to someone who wants to learn your language and teach you their language?";
       const greetingPayload = {
         text: message
       };
