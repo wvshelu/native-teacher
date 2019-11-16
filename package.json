@@ -6,6 +6,9 @@
   "repository": "https://github.com/wvshelu/native-teacher.git",
   "author": "sherry",
   "license": "MIT",
+"scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
