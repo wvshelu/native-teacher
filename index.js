@@ -85,7 +85,7 @@ function handleMessage(sender_psid, received_message) {
   if (received_message.text) {
     // Create the payload for a basic text message, which
     // will be added to the body of our request to the Send API
-    var user = getUser(sender_psid);
+    greetUser(sender_psid);
     /*else {
       if (user.language == null) {
         registerLanguage(user, received_message.text);
