@@ -139,7 +139,7 @@ function greetUser(sender_psid) {
       client.connect(err => {
         if (!err) {
           const collection = client.db("native_teacher").collection("users");
-          collection.insert({"psid" : sender_psid, "name" : name, "language" : ["english"]});
+          collection.insert({"psid" : sender_psid, "name" : name, "language" : "english"});
         } else {
           console.log(err);
         }
