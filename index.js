@@ -1,6 +1,7 @@
 'use strict';
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 const MONGODB_URI = process.env.MONGODB_URI;
+const FACEBOOK_GRAPH_API_BASE_URL = 'https://graph.facebook.com/v2.6/';
 
 const
   request = require('request'),
@@ -85,9 +86,7 @@ function handleMessage(sender_psid, received_message) {
   if (received_message.text) {
     // Create the payload for a basic text message, which
     // will be added to the body of our request to the Send API
-    response = {
-      "text": `You sent the message: "${received_message.text}". Now send me an attachment!`
-    }
+    greetUser(sender_psid);
   } else if (received_message.attachments) {
     // Get the URL of the message attachment
     let attachment_url = received_message.attachments[0].payload.url;
@@ -116,10 +115,49 @@ function handleMessage(sender_psid, received_message) {
         }
       }
     }
+    // Send the response message
+    callSendAPI(sender_psid, response);
   }
+}
 
-  // Send the response message
-  callSendAPI(sender_psid, response);
+function greetUser(sender_psid) {
+  request({
+    url: `${FACEBOOK_GRAPH_API_BASE_URL}${sender_psid}`,
+    qs: {
+      access_token: process.env.PAGE_ACCESS_TOKEN,
+      fields: "first_name"
+    },
+    method: "GET"
+  }, function(error, response, body) {
+    var greeting = "";
+    if (error) {
+      console.log("Error getting user's name: " +  error);
+    } else {
+      var bodyObj = JSON.parse(body);
+      const name = bodyObj.first_name;
+      greeting = "Hi " + name + ". ";
+      ChatStatus.insertOne({"user_id": sender_psid,
+        "name": name
+      });
+    }
+    const message = greeting + "Would you like to join a community of like-minded pandas in your area?";
+    const greetingPayload = {
+      "text": message,
+      "quick_replies":[
+        {
+          "content_type":"text",
+          "title":"Yes!",
+          "payload": START_SEARCH_YES
+        },
+        {
+          "content_type":"text",
+          "title":"No, thanks.",
+          "payload": START_SEARCH_NO
+        }
+      ]
+    };
+    callSendAPI(sender_psid, greetingPayload);
+  });
 }
 
 function callSendAPI(sender_psid, response) {
