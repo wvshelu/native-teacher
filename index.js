@@ -11,7 +11,6 @@ const
   app = express().use(body_parser.json()); // creates express http server
 
   const MongoClient = require('mongodb').MongoClient;
-  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
 
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
@@ -136,6 +135,7 @@ function greetUser(sender_psid) {
       var bodyObj = JSON.parse(body);
       const name = bodyObj.first_name;
       greeting = "Hi " + name + ". ";
+      const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
       client.connect(err => {
         if (!err) {
           const collection = client.db("native_teacher").collection("users");
