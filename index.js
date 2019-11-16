@@ -1,6 +1,6 @@
 'use strict';
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-/*const START_SEARCH_NO = 'START_SEARCH_NO';
+const START_SEARCH_NO = 'START_SEARCH_NO';
 const START_SEARCH_YES = 'START_SEARCH_YES';
 const GREETING = 'GREETING';
 const AUSTRALIA_YES = 'AUSTRALIA_YES';
@@ -14,22 +14,22 @@ const AUSTRALIA_NO = 'AUSTRALIA_NO';
 const OTHER_HELP_YES = 'OTHER_HELP_YES';
 const FACEBOOK_GRAPH_API_BASE_URL = 'https://graph.facebook.com/v2.6/';
 const GOOGLE_GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
-// const MONGODB_URI = process.env.MONGODB_URI;
-const GOOGLE_GEOCODING_API_KEY = process.env.GOOGLE_GEOCODING_API_KEY;
-*/
+const MONGODB_URI = process.env.MONGODB_URI;
+// const GOOGLE_GEOCODING_API_KEY = process.env.GOOGLE_GEOCODING_API_KEY;
+
 const
   request = require('request'),
   express = require('express'),
   body_parser = require('body-parser'),
-  // mongoose = require('mongoose'),
+  mongoose = require('mongoose'),
   app = express().use(body_parser.json()); // creates express http server
 
- // var db = mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
- // var ChatStatus = require("./models/chatstatus");
+  var db = mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
+  var ChatStatus = require("./models/chatstatus");
 
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
-/*
+
 // Accepts POST requests at /webhook endpoint
 app.post('/webhook', (req, res) => {
 
@@ -65,12 +65,12 @@ app.post('/webhook', (req, res) => {
         });
       });
     }
-}); */
+});
 
 // Accepts GET requests at the /webhook endpoint
 app.get('/webhook', (req, res) => {
 
-  // UPDATE YOUR VERIFY TOKEN 
+  // UPDATE YOUR VERIFY TOKEN
   const VERIFY_TOKEN = process.env.VERIFICATION_TOKEN;
   console.log(VERIFY_TOKEN);
   // Parse the query params
@@ -82,21 +82,21 @@ console.log(token);
 console.log(challenge);
   // Checks if a token and mode is in the query string of the request
   if (mode && token) {
-  
+
     // Checks the mode and token sent is correct
     if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-      
+
       // Responds with the challenge token from the request
       console.log('WEBHOOK_VERIFIED');
       res.status(200).send(challenge);
-    
+
     } else {
       // Responds with '403 Forbidden' if verify tokens do not match
-      res.sendStatus(403);      
+      res.sendStatus(403);
     }
   }
 });
-/*
+
 function handleMessage(sender_psid, message) {
   // check if it is a location message
   console.log('handleMEssage message:', JSON.stringify(message));
@@ -512,4 +512,3 @@ function callGeocodingApi(address, sender_psid, callback){
     }
   });
 }
-*/
