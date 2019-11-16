@@ -122,9 +122,7 @@ function greetUser(sender_psid) {
         client.connect(err => {
           if (!err) {
             const collection = client.db("native_teacher").collection("users");
-            collection.findOneAndUpdate({"psid" : sender_psid},
-              {"psid" : sender_psid, "name" : name},
-              {upsert : true});
+            collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
           } else {
             console.log(err);
           }
