@@ -72,12 +72,14 @@ app.get('/webhook', (req, res) => {
 
   // UPDATE YOUR VERIFY TOKEN 
   const VERIFY_TOKEN = process.env.VERIFICATION_TOKEN;
-  
+  console.log(VERIFY_TOKEN);
   // Parse the query params
   let mode = req.query['hub.mode'];
   let token = req.query['hub.verify_token'];
   let challenge = req.query['hub.challenge'];
-    
+    console.log(mode);
+console.log(token);
+console.log(challenge);
   // Checks if a token and mode is in the query string of the request
   if (mode && token) {
   
