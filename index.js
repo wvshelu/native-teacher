@@ -72,29 +72,27 @@ app.get('/webhook', (req, res) => {
 
   // UPDATE YOUR VERIFY TOKEN 
   const VERIFY_TOKEN = process.env.VERIFICATION_TOKEN;
-
-  // Parse params from the webhook verification request
-  // let mode = req.query['hub.mode'];
+  
+  // Parse the query params
+  let mode = req.query['hub.mode'];
   let token = req.query['hub.verify_token'];
-  // let challenge = req.query['hub.challenge'];
-/*
-  // Check if a token and mode were sent
-  if (token) {
-
-    // Check the mode and token sent are correct
-    if (token === VERIFY_TOKEN) {
-
-      // Respond with 200 OK and challenge token from the request
+  let challenge = req.query['hub.challenge'];
+    
+  // Checks if a token and mode is in the query string of the request
+  if (mode && token) {
+  
+    // Checks the mode and token sent is correct
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+      
+      // Responds with the challenge token from the request
       console.log('WEBHOOK_VERIFIED');
-      res.status(200).send("<html><body>success</body></html>");
-
+      res.status(200).send(challenge);
+    
     } else {
       // Responds with '403 Forbidden' if verify tokens do not match
-      res.sendStatus(403);
+      res.sendStatus(403);      
     }
-  } */
-
-res.status(200).send(token + " " + VERIFY_TOKEN); 
+  }
 });
 
 function handleMessage(sender_psid, message) {
