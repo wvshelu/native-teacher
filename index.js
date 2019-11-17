@@ -91,8 +91,7 @@ function handleMessage(sender_psid, received_message) {
         //const lang_collection = client.db("native_teacher").collection("language_pair");
         //var user = getUser(sender_psid, user_collection);
         //if (user == null)
-          const response = greetUser(sender_psid, user_collection);
-          callSendAPI(sender_psid, {"text" : response});
+        greetUser(sender_psid, user_collection);
 
       } else {
         console.log(err);
@@ -116,7 +115,6 @@ function handleMessage(sender_psid, received_message) {
 }
 
 function greetUser(sender_psid, collection) {
-  var greeting = "";
   request({
     url: `${FACEBOOK_GRAPH_API_BASE_URL}${sender_psid}`,
     qs: {
@@ -131,12 +129,12 @@ function greetUser(sender_psid, collection) {
       var bodyObj = JSON.parse(body);
       const name = bodyObj.first_name;
       if (name) {
-        greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
+        const greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
         collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
+        callSendAPI(sender_psid, {"text" : greeting});
       }
     }
   });
-  return greeting;
 }
 /*
 function registerLanguage(user, language) {
