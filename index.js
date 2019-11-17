@@ -109,11 +109,11 @@ function handleMessage(sender_psid, received_message) {
             }
             client.close();
           });
+          const message = {"text" : greeting};
+          callSendAPI(sender_psid, message);
         }
       }
     });
-    const message = {"text" : greeting};
-    callSendAPI(sender_psid, message);
   } else {
     callSendAPI(sender_psid, {
       "text": "Sorry, I don't understand."
