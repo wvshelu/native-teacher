@@ -103,8 +103,12 @@ function handleMessage(sender_psid, received_message) {
         client.connect(err => {
           if (!err) {
             var collection = client.db("native_teacher").collection("users");
-            var users = collection.count();
-            if (users > 0) {
+            var users = collection.find();
+            var val = false;
+            users.on('data', function(doc) {
+                val = true;
+              });
+            if (val) {
               const language = received_message.text;
               users = collection.count({"language" : {$exists : true}});
               if (users > 0) {
@@ -254,26 +258,3 @@ function handlePostback(sender_psid, received_postback) {
   // Send the message to acknowledge the postback
   callSendAPI(sender_psid, response);
 }
-
-/*
-function getUser(sender_psid, collection) {]
-  var users = collection.find({"psid" : sender_psid});
-  return users.hasNext()? users.next() : null;
-}*/
-
-/*
-function getLanguagePair(sender_psid) {
-  var pair = null;
-  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
-  client.connect(err => {
-    if (!err) {
-      const collection = client.db("native_teacher").collection("language_pair");
-      var pairs = collection.find({"psid" : sender_psid});
-      pair = pairs.hasNext()? pairs.next() : null;
-    } else {
-      console.log(err);
-    }
-    client.close();
-  });
-  return pair == null? null : pair.desired_language;
-}*/
