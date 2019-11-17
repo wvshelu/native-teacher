@@ -112,22 +112,35 @@ function handleMessage(sender_psid, received_message) {
                 const lang_collection = client.db("native_teacher").collection("language_pair");
                 users = collection.find({"language" : desired_language});
                 greeting = "Searching for match";
+                const message = greeting + "?";
+                const greetingPayload = {
+                  "text": message
+                };
+                callSendAPI(sender_psid, greetingPayload);
               } else {
                 collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"psid" : sender_psid, "name" : name, "language" : language}}, {upsert: true});
                 greeting = "What language would you like to learn";
+                const message = greeting + "?";
+                const greetingPayload = {
+                  "text": message
+                };
+                callSendAPI(sender_psid, greetingPayload);
               }
+            } else {
+              const message = greeting + "?";
+              const greetingPayload = {
+                "text": message
+              };
+              callSendAPI(sender_psid, greetingPayload);
             }
           } else {
             console.log("ERROR!!");
             console.log(err);
+
           }
           client.close();
         });
-        const message = greeting + "?";
-        const greetingPayload = {
-          "text": message
-        };
-        callSendAPI(sender_psid, greetingPayload);
+
       }
 
     }
