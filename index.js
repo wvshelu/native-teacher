@@ -101,16 +101,15 @@ function handleMessage(sender_psid, received_message) {
           if (!err) {
             const collection = client.db("native_teacher").collection("users");
             var users = collection.findOne({"psid" : sender_psid});
+            console.log("USER!!!");
             console.log(users);
             if (users) {
-              collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
-              greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know";
+              const language = received_message.text;
+              collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"language" : language}});
+              greeting = "What language would you like to learn"
             } else {
               collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
               greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know";
-              /*const language = received_message.text;
-              collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"psid" : sender_psid, "name" : name, "language" : language}});
-              greeting = "What language would you like to learn? "*/
             } /* else {
               const desired_language = received_message.text;
               const lang_collection = client.db("native_teacher").collection("language_pair");
@@ -118,6 +117,7 @@ function handleMessage(sender_psid, received_message) {
 
             }*/
           } else {
+            console.log("ERROR!!");
             console.log(err);
           }
           client.close();
