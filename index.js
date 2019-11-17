@@ -95,19 +95,27 @@ function handleMessage(sender_psid, received_message) {
     } else {
       var bodyObj = JSON.parse(body);
       const name = bodyObj.first_name;
-      greeting = "Hi " + name + ". ";
-      const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
-      client.connect(err => {
-        if (!err) {
-          const collection = client.db("native_teacher").collection("users");
-          collection.insert({"psid" : sender_psid, "name" : name, "language" : "english"});
-        } else {
-          console.log(err);
-        }
-        client.close();
-      });
+      if (name) {
+        const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+        client.connect(err => {
+          if (!err) {
+            const collection = client.db("native_teacher").collection("users");
+            var users = collection.find({"psid" : sender_psid});
+            if (!users.hasNext()) {
+              collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
+              greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
+            } else if (!users.next().language) {
+              collection.findOneAndUpdate({"psid" : sender_psid}, {"psid" : sender_psid, "name" : name, "language" : received_message.text});
+              greeting = "What language would you like to learn? "
+            }
+          } else {
+            console.log(err);
+          }
+          client.close();
+        });
+      }
     }
-    const message = greeting + "Would you like to join a community of like-minded pandas in your area?";
+    const message = greeting + " ";
     const greetingPayload = {
       "text": message
     };
