@@ -107,7 +107,7 @@ function handleMessage(sender_psid, received_message) {
             var users = collection.aggregate( [
    { $count: "myCount" }
 ]);
-            if (val) {
+            if (myCount > 0) {
               const language = received_message.text;
               users = collection.count({"language" : {$exists : true}});
               if (users > 0) {
