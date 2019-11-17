@@ -103,11 +103,11 @@ function handleMessage(sender_psid, received_message) {
         client.connect(err => {
           if (!err) {
             var collection = client.db("native_teacher").collection("users");
-            var users = collection.find({"psid" : sender_psid});
-            if (users.next() != null) {
+            var users = collection.count({"psid" : sender_psid});
+            if (users > 0) {
               const language = received_message.text;
-              users = collection.find({"psid" : sender_psid, "language" : {$exists : true}});
-              if (users.next() != null) {
+              users = collection.count({"psid" : sender_psid, "language" : {$exists : true}});
+              if (users > 0) {
                 const lang_collection = client.db("native_teacher").collection("language_pair");
                 users = collection.find({"language" : language});
                 const greetingPayload = {
