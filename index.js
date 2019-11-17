@@ -105,7 +105,8 @@ function handleMessage(sender_psid, received_message) {
               collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
               greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
             } else if (!users.next().language) {
-              collection.findOneAndUpdate({"psid" : sender_psid}, {"psid" : sender_psid, "name" : name, "language" : received_message.text});
+              const language = received_message.text;
+              collection.findOneAndUpdate({"psid" : sender_psid}, {"psid" : sender_psid, "name" : name, "language" : language});
               greeting = "What language would you like to learn? "
             }
           } else {
