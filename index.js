@@ -7,7 +7,6 @@ const
   request = require('request'),
   express = require('express'),
   body_parser = require('body-parser'),
-  mongoose = require('mongoose'),
   app = express().use(body_parser.json()); // creates express http server
 
   const MongoClient = require('mongodb').MongoClient;
@@ -82,31 +81,39 @@ function handleMessage(sender_psid, received_message) {
 
   // Checks if the message contains text
   if (received_message.text) {
+    var greeting = "";
     // Create the payload for a basic text message, which
     // will be added to the body of our request to the Send API
-    const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
-    client.connect(err => {
-      if (!err) {
-        const user_collection = client.db("native_teacher").collection("users");
-        //const lang_collection = client.db("native_teacher").collection("language_pair");
-        //var user = getUser(sender_psid, user_collection);
-        //if (user == null)
-        greetUser(sender_psid, user_collection);
-
+    request({
+      url: `${FACEBOOK_GRAPH_API_BASE_URL}${sender_psid}`,
+      qs: {
+        access_token: process.env.PAGE_ACCESS_TOKEN,
+        fields: "first_name"
+      },
+      method: "GET"
+    }, function(error, response, body) {
+      if (error) {
+        console.log("Error getting user's name: " +  error);
       } else {
-        console.log(err);
+        var bodyObj = JSON.parse(body);
+        const name = bodyObj.first_name;
+        if (name) {
+          const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+          client.connect(err => {
+            if (!err) {
+              const collection = client.db("native_teacher").collection("users");
+              collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
+              greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
+            } else {
+              console.log(err);
+            }
+            client.close();
+          });
+        }
       }
-      client.close();
     });
-
-    /*else {
-      if (user.language == null) {
-        registerLanguage(user, received_message.text);
-      } else {
-        findMatchOrRegister();
-      }
-    }*/
-
+    const message = {"text" : greeting};
+    callSendAPI(sender_psid, message);
   } else {
     callSendAPI(sender_psid, {
       "text": "Sorry, I don't understand."
@@ -114,28 +121,6 @@ function handleMessage(sender_psid, received_message) {
   }
 }
 
-function greetUser(sender_psid, collection) {
-  request({
-    url: `${FACEBOOK_GRAPH_API_BASE_URL}${sender_psid}`,
-    qs: {
-      access_token: process.env.PAGE_ACCESS_TOKEN,
-      fields: "first_name"
-    },
-    method: "GET"
-  }, function(error, response, body) {
-    if (error) {
-      console.log("Error getting user's name: " +  error);
-    } else {
-      var bodyObj = JSON.parse(body);
-      const name = bodyObj.first_name;
-      if (name) {
-        const greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
-        collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
-        callSendAPI(sender_psid, {"text" : greeting});
-      }
-    }
-  });
-}
 /*
 function registerLanguage(user, language) {
   const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
