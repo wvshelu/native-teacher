@@ -117,7 +117,7 @@ function handleMessage(sender_psid, received_message) {
               } else {
                 collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"psid" : sender_psid, "name" : name, "language" : language}});
                 const greetingPayload = {
-                  "text": "What language would you like to learn?";
+                  "text": "What language would you like to learn?"
                 };
                 callSendAPI(sender_psid, greetingPayload);
               }
