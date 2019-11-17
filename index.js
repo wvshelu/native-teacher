@@ -108,7 +108,7 @@ function handleMessage(sender_psid, received_message) {
             if (users.hasNext()) {
               const language = received_message.text;
               var user = users.next();
-              if (user.language) {
+              if (user.language != null) {
                 const lang_collection = client.db("native_teacher").collection("language_pair");
                 users = collection.find({"language" : desired_language});
                 greeting = "Searching for match";
@@ -123,15 +123,15 @@ function handleMessage(sender_psid, received_message) {
           }
           client.close();
         });
+        const message = greeting + "?";
+        const greetingPayload = {
+          "text": message
+        };
+        callSendAPI(sender_psid, greetingPayload);
       }
 
     }
   });
-  const message = greeting + "?";
-  const greetingPayload = {
-    "text": message
-  };
-  callSendAPI(sender_psid, greetingPayload);
   } else {
     callSendAPI(sender_psid, {
       "text": "Sorry, I don't understand."
