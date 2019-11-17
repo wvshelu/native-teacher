@@ -97,7 +97,7 @@ function handleMessage(sender_psid, received_message) {
       }
       client.close();
     });
-    callSendAPI(user.psid, response);
+    callSendAPI(sender_psid, response);
 
     /*else {
       if (user.language == null) {
