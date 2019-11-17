@@ -103,8 +103,10 @@ function handleMessage(sender_psid, received_message) {
         client.connect(err => {
           if (!err) {
             var collection = client.db("native_teacher").collection("users");
-            var val = false;
-            var users = collection.find({psid : sender_psid}).count(function (e, count) { val = true;});
+            var myCount = 0;
+            var users = collection.aggregate( [
+   { $count: "myCount" }
+]);
             if (val) {
               const language = received_message.text;
               users = collection.count({"language" : {$exists : true}});
