@@ -103,10 +103,8 @@ function handleMessage(sender_psid, received_message) {
         client.connect(err => {
           if (!err) {
             const collection = client.db("native_teacher").collection("users");
-            var users = collection.findOne({"psid" : sender_psid});
-            console.log("USER!!!");
-            console.log(users);
-            if (users) {
+            var users = collection.find({"psid" : sender_psid});
+            if (users.hasNext()) {
               const language = received_message.text;
               collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"psid" : sender_psid, "name" : name, "language" : language}}, {upsert: true});
               greeting = "What language would you like to learn"
