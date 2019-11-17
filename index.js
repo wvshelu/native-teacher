@@ -100,17 +100,22 @@ function handleMessage(sender_psid, received_message) {
         client.connect(err => {
           if (!err) {
             const collection = client.db("native_teacher").collection("users");
-            var users = collection.find({"psid" : sender_psid});
-            if (!users.hasNext()) {
+            var users = collection.findOne({"psid" : sender_psid});
+            console.log(users);
+            if (users) {
               collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
-              greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
-            } else if (!users.next().language) {
-              const language = received_message.text;
+              greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know";
+            } else {
+              collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
+              greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know";
+              /*const language = received_message.text;
               collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"psid" : sender_psid, "name" : name, "language" : language}});
-              greeting = "What language would you like to learn? "
-            } /*else {
+              greeting = "What language would you like to learn? "*/
+            } /* else {
               const desired_language = received_message.text;
               const lang_collection = client.db("native_teacher").collection("language_pair");
+              users = collection.find({"language" : desired_language});
+
             }*/
           } else {
             console.log(err);
@@ -119,7 +124,7 @@ function handleMessage(sender_psid, received_message) {
         });
       }
     }
-    const message = greeting + " ";
+    const message = greeting + "?";
     const greetingPayload = {
       "text": message
     };
