@@ -37,6 +37,8 @@ app.post('/webhook', (req, res) => {
         // pass the event to the appropriate handler function
         if (webhook_event.message) {
           handleMessage(sender_psid, webhook_event.message);
+        } else if (webhook_event.postback) {
+          handlePostback(sender_psid, webhook_event.postback);
         }
 
       });
@@ -77,7 +79,6 @@ app.get('/webhook', (req, res) => {
 });
 
 function handleMessage(sender_psid, received_message) {
-  let response;
 
   // Checks if the message contains text
   if (received_message.text) {
@@ -90,14 +91,14 @@ function handleMessage(sender_psid, received_message) {
         //const lang_collection = client.db("native_teacher").collection("language_pair");
         //var user = getUser(sender_psid, user_collection);
         //if (user == null)
-          response = greetUser(sender_psid, user_collection);
+          const response = greetUser(sender_psid, user_collection);
+          callSendAPI(sender_psid, {"text" : response});
 
       } else {
         console.log(err);
       }
       client.close();
     });
-    callSendAPI(sender_psid, {"text" : response});
 
     /*else {
       if (user.language == null) {
@@ -226,6 +227,22 @@ function callSendAPI(sender_psid, response) {
       console.error("Unable to send message:" + err);
     }
   });
+}
+
+function handlePostback(sender_psid, received_postback) {
+  let response;
+
+  // Get the payload for the postback
+  let payload = received_postback.payload;
+
+  // Set the response based on the postback payload
+  if (payload === 'yes') {
+    response = { "text": "Thanks!" }
+  } else if (payload === 'no') {
+    response = { "text": "Oops, try sending another image." }
+  }
+  // Send the message to acknowledge the postback
+  callSendAPI(sender_psid, response);
 }
 
 /*
