@@ -109,7 +109,7 @@ function handleMessage(sender_psid, received_message) {
               users = collection.find({"psid" : sender_psid, "language" : {$exists : true}});
               if (users.hasNext()) {
                 const lang_collection = client.db("native_teacher").collection("language_pair");
-                users = collection.find({"language" : desired_language});
+                users = collection.find({"language" : language});
                 const greetingPayload = {
                   "text": "Searching for match"
                 };
