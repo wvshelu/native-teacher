@@ -108,7 +108,7 @@ function handleMessage(sender_psid, received_message) {
     }*/
 
   } else {
-    callSendAPI(user.psid, {
+    callSendAPI(sender_psid, {
       "text": "Sorry, I don't understand."
     });
   }
