@@ -104,10 +104,10 @@ function handleMessage(sender_psid, received_message) {
           if (!err) {
             var collection = client.db("native_teacher").collection("users");
             var users = collection.find({"psid" : sender_psid});
-            if (users.toArray().length > 0) {
+            if (users.next() != null) {
               const language = received_message.text;
               users = collection.find({"psid" : sender_psid, "language" : {$exists : true}});
-              if (users.toArray().length > 0) {
+              if (users.next() != null) {
                 const lang_collection = client.db("native_teacher").collection("language_pair");
                 users = collection.find({"language" : language});
                 const greetingPayload = {
