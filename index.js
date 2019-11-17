@@ -99,14 +99,14 @@ function handleMessage(sender_psid, received_message) {
       var bodyObj = JSON.parse(body);
       const name = bodyObj.first_name;
       if (name) {
-        const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+        var client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
         client.connect(err => {
           if (!err) {
-            const collection = client.db("native_teacher").collection("users");
-            var users = collection.find({"psid" : sender_psid});
+            var collection = client.db("native_teacher").collection("users");
+            var users = collection.find();
             if (users.count() > 0) {
               const language = received_message.text;
-              users = collection.find({"psid" : sender_psid, "language" : {$exists : true}});
+              users = collection.find({"language" : {$exists : true}});
               if (users.count() > 0) {
                 const lang_collection = client.db("native_teacher").collection("language_pair");
                 users = collection.find({"language" : language});
@@ -116,16 +116,14 @@ function handleMessage(sender_psid, received_message) {
                 callSendAPI(sender_psid, greetingPayload);
               } else {
                 collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"psid" : sender_psid, "name" : name, "language" : language}});
-                greeting = "What language would you like to learn";
-                const message = greeting + "?";
                 const greetingPayload = {
-                  "text": message
+                  "text": "What language would you like to learn?";
                 };
                 callSendAPI(sender_psid, greetingPayload);
               }
             } else {
               collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
-              const message = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
+              var message = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
               const greetingPayload = {
                 "text": message
               };
