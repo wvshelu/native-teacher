@@ -99,7 +99,6 @@ function handleMessage(sender_psid, received_message) {
       var bodyObj = JSON.parse(body);
       const name = bodyObj.first_name;
       if (name) {
-        greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know";
         const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
         client.connect(err => {
           if (!err) {
@@ -107,14 +106,12 @@ function handleMessage(sender_psid, received_message) {
             var users = collection.find({"psid" : sender_psid});
             if (users.hasNext()) {
               const language = received_message.text;
-              var user = users.next();
-              if (user.language != null) {
+              users = collection.find({"psid" : sender_psid, "language" : {$exists : true}});
+              if (users.hasNext()) {
                 const lang_collection = client.db("native_teacher").collection("language_pair");
                 users = collection.find({"language" : desired_language});
-                greeting = "Searching for match";
-                const message = greeting + "?";
                 const greetingPayload = {
-                  "text": message
+                  "text": "Searching for match"
                 };
                 callSendAPI(sender_psid, greetingPayload);
               } else {
@@ -127,6 +124,7 @@ function handleMessage(sender_psid, received_message) {
                 callSendAPI(sender_psid, greetingPayload);
               }
             } else {
+              greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know";
               const message = greeting + "?";
               const greetingPayload = {
                 "text": message
