@@ -81,6 +81,7 @@ function handleMessage(sender_psid, received_message) {
 
   // Checks if the message contains text
   if (received_message.text) {
+    var greeting = "";
     request({
     url: `${FACEBOOK_GRAPH_API_BASE_URL}${sender_psid}`,
     qs: {
@@ -89,7 +90,7 @@ function handleMessage(sender_psid, received_message) {
     },
     method: "GET"
   }, function(error, response, body) {
-    var greeting = "";
+
     if (error) {
       console.log("Error getting user's name: " +  error);
     } else {
@@ -122,13 +123,14 @@ function handleMessage(sender_psid, received_message) {
           client.close();
         });
       }
-      const message = greeting + "?";
-      const greetingPayload = {
-        "text": message
-      };
-      callSendAPI(sender_psid, greetingPayload);
+
     }
   });
+  const message = greeting + "?";
+  const greetingPayload = {
+    "text": message
+  };
+  callSendAPI(sender_psid, greetingPayload);
   } else {
     callSendAPI(sender_psid, {
       "text": "Sorry, I don't understand."
