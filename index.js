@@ -87,9 +87,9 @@ function handleMessage(sender_psid, received_message) {
     client.connect(err => {
       if (!err) {
         const user_collection = client.db("native_teacher").collection("users");
-        const lang_collection = client.db("native_teacher").collection("language_pair");
-        var user = getUser(sender_psid, user_collection);
-        if (user == null)
+        //const lang_collection = client.db("native_teacher").collection("language_pair");
+        //var user = getUser(sender_psid, user_collection);
+        //if (user == null)
           response = greetUser(sender_psid, user_collection);
 
       } else {
@@ -97,6 +97,7 @@ function handleMessage(sender_psid, received_message) {
       }
       client.close();
     });
+    callSendAPI(user.psid, response);
 
     /*else {
       if (user.language == null) {
@@ -231,12 +232,11 @@ function callSendAPI(sender_psid, response) {
   });
 }
 
-
-function getUser(sender_psid, collection) {
-  var user = null;
+/*
+function getUser(sender_psid, collection) {]
   var users = collection.find({"psid" : sender_psid});
   return users.hasNext()? users.next() : null;
-}
+}*/
 
 /*
 function getLanguagePair(sender_psid) {
