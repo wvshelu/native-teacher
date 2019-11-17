@@ -37,8 +37,6 @@ app.post('/webhook', (req, res) => {
         // pass the event to the appropriate handler function
         if (webhook_event.message) {
           handleMessage(sender_psid, webhook_event.message);
-        } else if (webhook_event.postback) {
-          handlePostback(sender_psid, webhook_event.postback);
         }
 
       });
@@ -85,7 +83,21 @@ function handleMessage(sender_psid, received_message) {
   if (received_message.text) {
     // Create the payload for a basic text message, which
     // will be added to the body of our request to the Send API
-    greetUser(sender_psid);
+    const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+    client.connect(err => {
+      if (!err) {
+        const user_collection = client.db("native_teacher").collection("users");
+        const lang_collection = client.db("native_teacher").collection("language_pair");
+        var user = getUser(sender_psid, user_collection);
+        if (user == null)
+          response = greetUser(sender_psid, user_collection);
+
+      } else {
+        console.log(err);
+      }
+      client.close();
+    });
+
     /*else {
       if (user.language == null) {
         registerLanguage(user, received_message.text);
@@ -101,7 +113,7 @@ function handleMessage(sender_psid, received_message) {
   }
 }
 
-function greetUser(sender_psid) {
+function greetUser(sender_psid, collection) {
   request({
     url: `${FACEBOOK_GRAPH_API_BASE_URL}${sender_psid}`,
     qs: {
@@ -118,23 +130,14 @@ function greetUser(sender_psid) {
       const name = bodyObj.first_name;
       if (name) {
         greeting = "Hi " + name + ". ";
-        const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
-        client.connect(err => {
-          if (!err) {
-            const collection = client.db("native_teacher").collection("users");
-            collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
-          } else {
-            console.log(err);
-          }
-          client.close();
-        });
+        collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
       }
     }
     const message = greeting + "I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
     const greetingPayload = {
       "text": message
     };
-    callSendAPI(sender_psid, greetingPayload);
+    return greetingPayload;
   });
 }
 /*
@@ -228,37 +231,12 @@ function callSendAPI(sender_psid, response) {
   });
 }
 
-function handlePostback(sender_psid, received_postback) {
-  let response;
 
-  // Get the payload for the postback
-  let payload = received_postback.payload;
-
-  // Set the response based on the postback payload
-  if (payload === 'yes') {
-    response = { "text": "Thanks!" }
-  } else if (payload === 'no') {
-    response = { "text": "Oops, try sending another image." }
-  }
-  // Send the message to acknowledge the postback
-  callSendAPI(sender_psid, response);
-}
-/*
-function getUser(sender_psid) {
+function getUser(sender_psid, collection) {
   var user = null;
-  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
-  client.connect(err => {
-    if (!err) {
-      const collection = client.db("native_teacher").collection("users");
-      var users = collection.find({"psid" : sender_psid});
-      user = users.hasNext()? users.next() : null;
-    } else {
-      console.log(err);
-    }
-    client.close();
-  });
-  return user;
-}*/
+  var users = collection.find({"psid" : sender_psid});
+  return users.hasNext()? users.next() : null;
+}
 
 /*
 function getLanguagePair(sender_psid) {
