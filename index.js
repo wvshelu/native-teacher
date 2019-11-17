@@ -77,12 +77,7 @@ function handleMessage(sender_psid, received_message) {
   if (received_message.text) {
     // Create the payload for a basic text message, which
     // will be added to the body of our request to the Send API
-    if (!containsUser(sender_psid)) greetUser(sender_psid);
-    else if (!containsLanguage(sender_psid))
-      return "What language would you like to learn?";
-    else if (!containsLanguagePair(sender_psid))
-      return "We will send you a message when we have your match!";
-    else return;
+    greetUser(sender_psid);
   } else if (received_message.attachments) {
     // Get the URL of the message attachment
     let attachment_url = received_message.attachments[0].payload.url;
@@ -200,29 +195,34 @@ function handlePostback(sender_psid, received_postback) {
 
   // Get the payload for the postback
   let payload = received_postback.payload;
-
+  let lang = [
+    "english",
+    "french",
+    "arabic",
+    "tibetan",
+    "chinese",
+    "polish",
+    "hindi",
+    "russian",
+    "spanish",
+    "portuguese"
+  ];
   // Set the response based on the postback payload
-  if (payload === "yes") {
-    response = { text: "Thanks!" };
-  } else if (payload === "no") {
-    response = { text: "Oops, try sending another image." };
+  if (payload.toLowerCase() === "yes") {
+    response = { text: "Nice, what language do you want to learn." };
   }
+  if (payload.toLowerCase() === "no") {
+    response = { text: "Dang, have a good day." };
+  }
+  if (lang.includes(payload.toLowerCase())) {
+    response = { text: "Great, we will find someone who knows this language." };
+  }
+  if (!lang.includes(payload.toLowerCase())) {
+    response = {
+      text: "Sorry, we do not support the language as of now."
+    };
+  }
+
   // Send the message to acknowledge the postback
   callSendAPI(sender_psid, response);
-}
-
-function containsUser(sender_psid) {
-  return false;
-}
-
-function containsLanguage(sender_psid) {
-  return false;
-}
-
-function containsLanguagePair(sender_psid) {
-  return false;
-}
-
-function containsMatch(sender_psid) {
-  return false;
 }
