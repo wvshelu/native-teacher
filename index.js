@@ -77,11 +77,13 @@ app.get('/webhook', (req, res) => {
   }
 });
 
+var greeting = "";
+
 function handleMessage(sender_psid, received_message) {
 
   // Checks if the message contains text
   if (received_message.text) {
-    var greeting = "";
+
     request({
     url: `${FACEBOOK_GRAPH_API_BASE_URL}${sender_psid}`,
     qs: {
