@@ -115,7 +115,7 @@ function handleMessage(sender_psid, received_message) {
                 };
                 callSendAPI(sender_psid, greetingPayload);
               } else {
-                collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"psid" : sender_psid, "name" : name, "language" : language}}, {upsert: true});
+                collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"psid" : sender_psid, "name" : name, "language" : language}});
                 greeting = "What language would you like to learn";
                 const message = greeting + "?";
                 const greetingPayload = {
@@ -124,8 +124,8 @@ function handleMessage(sender_psid, received_message) {
                 callSendAPI(sender_psid, greetingPayload);
               }
             } else {
-              greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know";
-              const message = greeting + "?";
+              collection.insert({"psid" : sender_psid, "name" : name, "language" : null});
+              const message = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know?";
               const greetingPayload = {
                 "text": message
               };
