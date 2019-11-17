@@ -99,6 +99,7 @@ function handleMessage(sender_psid, received_message) {
       var bodyObj = JSON.parse(body);
       const name = bodyObj.first_name;
       if (name) {
+        greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know";
         const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
         client.connect(err => {
           if (!err) {
@@ -106,16 +107,16 @@ function handleMessage(sender_psid, received_message) {
             var users = collection.find({"psid" : sender_psid});
             if (users.hasNext()) {
               const language = received_message.text;
-              collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"psid" : sender_psid, "name" : name, "language" : language}}, {upsert: true});
-              greeting = "What language would you like to learn"
-            } else {
-              greeting = "Hi " + name + ". I'm Native Teacher, a bot to help connect you to someone who wants to learn your language and teach you their language. What language do you know";
-            } /* else {
-              const desired_language = received_message.text;
-              const lang_collection = client.db("native_teacher").collection("language_pair");
-              users = collection.find({"language" : desired_language});
-
-            }*/
+              var user = users.next();
+              if (user.language) {
+                const lang_collection = client.db("native_teacher").collection("language_pair");
+                users = collection.find({"language" : desired_language});
+                greeting = "Searching for match";
+              } else {
+                collection.findOneAndUpdate({"psid" : sender_psid}, {$set: {"psid" : sender_psid, "name" : name, "language" : language}}, {upsert: true});
+                greeting = "What language would you like to learn";
+              }
+            }
           } else {
             console.log("ERROR!!");
             console.log(err);
